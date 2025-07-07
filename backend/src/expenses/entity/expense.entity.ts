@@ -1,8 +1,8 @@
-export class ExpenseEntity {
-  id!: number;
-  description!: string;
-  amount!: number;
-  date!: Date;
-  createdAt!: Date;
-  updatedAt!: Date;
+export default interface Expense {
+  id: number;
+  name: string;
+  amount: number;
+  currency: string;
+  category: string;
+  date: string;
 }

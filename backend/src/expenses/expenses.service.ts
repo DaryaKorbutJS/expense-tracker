@@ -1,30 +1,20 @@
-import { prisma } from '../db';
-import { ExpenseEntity } from './entity/expense.entity';
-import { CreateExpenseDto } from './dto/createExpense.dto';
-import { UpdateExpenseDto } from './dto/updateExpense.dto';
+import { ExpensesRepository } from './expenses.repository';
+import { CreateExpenseDTO } from './dto/createExpense.dto';
+import Expense from './entity/expense.entity';
 
 export class ExpensesService {
-  async getAll(): Promise<ExpenseEntity[]> {
-    return prisma.expense.findMany();
+  private repo = new ExpensesRepository();
+
+  addExpense(dto: CreateExpenseDTO): Expense {
+    return this.repo.create(dto);
   }
 
-  async getById(id: number): Promise<ExpenseEntity | null> {
-    return prisma.expense.findUnique({ where: { id } });
+  getExpenses(): Expense[] {
+    return this.repo.findAll();
   }
 
-  async create(data: CreateExpenseDto): Promise<ExpenseEntity> {
-    return prisma.expense.create({
-      data: { ...data, date: new Date(data.date) },
-    });
-  }
-
-  async update(id: number, data: UpdateExpenseDto): Promise<ExpenseEntity> {
-    const updateData: any = { ...data };
-    if (data.date) updateData.date = new Date(data.date);
-    return prisma.expense.update({ where: { id }, data: updateData });
-  }
-
-  async delete(id: number): Promise<void> {
-    await prisma.expense.delete({ where: { id } });
+  getExpenseById(id: number): Expense | null {
+    const e = this.repo.findById(id);
+    return e ?? null;
   }
 }
