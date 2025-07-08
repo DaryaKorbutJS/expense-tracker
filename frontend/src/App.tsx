@@ -1,6 +1,7 @@
 import { Logo } from './components/Logo/index'
 import { Loader } from './components/Loader/index'
 import { Button } from "./components/Button/index"
+import { InputLabel } from './components/InputLabel/index'
 import './App.css'
 
 function handleClick() {
@@ -36,6 +37,14 @@ function App() {
       <Button buttonType="ghost" size="small" shape="round">
         <span aria-hidden>-</span>
       </Button>
+
+      <InputLabel htmlFor="username" required>
+        Username
+      </InputLabel>
+
+      <InputLabel htmlFor="username">
+        Email
+      </InputLabel>
     </>
   )
 }
