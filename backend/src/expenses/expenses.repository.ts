@@ -1,37 +1,30 @@
-import db from '../db/db.service';
-import { CreateExpenseDTO } from './dto/createExpense.dto';
-import Expense from './entity/expense.entity';
+import prisma from '../prisma/prisma.service'
+import { CreateExpenseDTO } from './dto/createExpense.dto'
+import Expense from './entity/expense.entity'
 
 export class ExpensesRepository {
-  create(dto: CreateExpenseDTO): Expense {
-    const stmt = db.prepare(`
-      INSERT INTO expenses (name, amount, currency, category, date)
-      VALUES (@name, @amount, @currency, @category, @date)
-    `);
-    const info = stmt.run({
-      name: dto.name,
-      amount: dto.amount,
-      currency: dto.currency,
-      category: dto.category,
-      date: dto.date.toISOString(),
-    });
-    return {
-      id: info.lastInsertRowid as number,
-      name: dto.name,
-      amount: dto.amount,
-      currency: dto.currency,
-      category: dto.category,
-      date: dto.date.toISOString(),
-    };
+  async create(dto: CreateExpenseDTO): Promise<Expense> {
+    const created = await prisma.expense.create({
+      data: {
+        name:     dto.name,
+        amount:   dto.amount,
+        currency: dto.currency,
+        category: dto.category,
+        date:     dto.date,
+      },
+    })
+    return created
   }
 
-  findAll(): Expense[] {
-    const stmt = db.prepare(`SELECT * FROM expenses ORDER BY date DESC`);
-    return stmt.all() as Expense[];
+  async findAll(): Promise<Expense[]> {
+    return prisma.expense.findMany({
+      orderBy: { date: 'desc' },
+    })
   }
 
-  findById(id: number): Expense | undefined {
-    const stmt = db.prepare(`SELECT * FROM expenses WHERE id = ?`);
-    return stmt.get(id) as Expense | undefined;
+  async findById(id: number): Promise<Expense | null> {
+    return prisma.expense.findUnique({
+      where: { id },
+    })
   }
 }
