@@ -80,3 +80,44 @@ describe('GET /expenses', () => {
     });
   });
 });
+
+describe('GET /expenses/:id', () => {
+  let createdId: number;
+
+  beforeAll(async () => {
+    const seed = {
+      name: 'Get-by-ID-seed',
+      amount: 42,
+      currency: 'EUR',
+      category: 'Test',
+      date: '2025-01-01T00:00:00.000Z',
+    };
+
+    const res = await request(app).post('/expenses').send(seed).expect(201);
+    createdId = res.body.id;
+  });
+
+  it('returns 200 and the correct expense for a valid ID', async () => {
+    const res = await request(app).get(`/expenses/${createdId}`).expect(200);
+
+    expect(res.body).toMatchObject({
+      id: createdId,
+      name: 'Get-by-ID-seed',
+      amount: 42,
+      currency: 'EUR',
+      category: 'Test',
+    });
+  });
+
+  it('returns 400 for a non-numeric ID', async () => {
+    const res = await request(app).get('/expenses/not-a-number').expect(400);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('returns 404 when the expense does not exist', async () => {
+    const nonexistentId = createdId + 10_000;
+
+    const res = await request(app).get(`/expenses/${nonexistentId}`).expect(404);
+    expect(res.body.error).toBeDefined();
+  });
+});
