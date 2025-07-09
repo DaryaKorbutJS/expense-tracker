@@ -1,18 +1,22 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDTO } from './dto/createExpense.dto';
+import { validate } from '../helpers/middlewares/validator';
 
 const router = Router();
 const service = new ExpensesService();
 
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const dto = new CreateExpenseDTO(req.body);
-    const expense = await service.addExpense(dto);
-    res.status(201).json(expense);
-  } catch (err: any) {
-    next(err);
-  }
+router.post(
+  '/', 
+  validate(CreateExpenseDTO), 
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const dto = new CreateExpenseDTO(req.body);
+      const expense = await service.addExpense(dto);
+      res.status(201).json(expense);
+    } catch (err: any) {
+      next(err);
+    }
 });
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {

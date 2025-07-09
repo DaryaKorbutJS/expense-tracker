@@ -1,4 +1,23 @@
-export function errorHandler(err: any, req: any, res: any, next: any): void {
-  const status = err.status || 500;
-  res.status(status).json({ message: err.message });
-}
+import {
+  ErrorRequestHandler,
+  Request,
+  Response,
+  NextFunction,
+} from 'express';
+import Logger from '../Logger';
+
+export const errorHandler: ErrorRequestHandler = (
+  err: any,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+): void => {
+  Logger.error(err);
+
+  if (err instanceof Error) {
+    res.status(400).json({ error: err.message });
+    return;
+  }
+
+  res.status(500).json({ error: 'Internal server error' });
+};
