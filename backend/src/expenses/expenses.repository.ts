@@ -1,4 +1,5 @@
 import prisma from '../prisma/prisma.service'
+import { ExpenseQuery } from './types';
 import { CreateExpenseDTO } from './dto/createExpense.dto'
 import Expense from './entity/expense.entity'
 
@@ -16,10 +17,19 @@ export class ExpensesRepository {
     return created
   }
 
-  async findAll(): Promise<Expense[]> {
+  async findAll(q: ExpenseQuery = {}): Promise<Expense[]> {
+    const { limit, offset, fromDate, toDate } = q;
+
     return prisma.expense.findMany({
+      take : limit,
+      skip : offset,
       orderBy: { date: 'desc' },
-    })
+      where: {
+        ...(fromDate || toDate
+          ? { date: { gte: fromDate ?? undefined, lte: toDate ?? undefined } }
+          : {}),
+      },
+    });
   }
 
   async findById(id: number): Promise<Expense | null> {

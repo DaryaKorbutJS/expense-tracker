@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import { ExpenseQuery } from './types';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDTO } from './dto/createExpense.dto';
 import { validate } from '../helpers/middlewares/validator';
@@ -19,14 +20,46 @@ router.post(
     }
 });
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const list = await service.getExpenses();
-    res.json(list);
-  } catch (err: any) {
-    next(err);
-  }
-});
+router.get(
+  '/',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const limit     = req.query.limit   !== undefined ? Number(req.query.limit)  : undefined;
+      const offset    = req.query.offset  !== undefined ? Number(req.query.offset) : undefined;
+      const fromDateQ = req.query.fromDate ? new Date(String(req.query.fromDate))  : undefined;
+      const toDateQ   = req.query.toDate   ? new Date(String(req.query.toDate))    : undefined;
+
+      const badNumber = (n: unknown) => n !== undefined && Number.isNaN(n);
+      const badDate   = (d?: Date) => d && Number.isNaN(d.getTime());
+
+      if (
+        badNumber(limit)  ||
+        badNumber(offset) ||
+        badDate(fromDateQ)||
+        badDate(toDateQ)
+      ) {
+        res.status(400).json({ error: 'Bad query parameters' });
+        return;
+      }
+
+      const query: ExpenseQuery = {
+        limit,
+        offset,
+        fromDate: fromDateQ,
+        toDate  : toDateQ,
+      };
+
+      const data = await service.getExpenses(query);
+
+      res.status(200).json({
+        data,
+        pagination: { limit, offset },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   const id = parseInt(req.params.id, 10);
