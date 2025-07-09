@@ -1,3 +1,4 @@
+import { ExpenseQuery } from './types';
 import { ExpensesRepository } from './expenses.repository'
 import { CreateExpenseDTO } from './dto/createExpense.dto'
 import Expense from './entity/expense.entity'
@@ -9,8 +10,8 @@ export class ExpensesService {
     return this.repo.create(dto)
   }
 
-  getExpenses(): Promise<Expense[]> {
-    return this.repo.findAll()
+  getExpenses(q: ExpenseQuery = {}): Promise<Expense[]> {
+    return this.repo.findAll(q);
   }
 
   getExpenseById(id: number): Promise<Expense | null> {
