@@ -121,3 +121,105 @@ describe('GET /expenses/:id', () => {
     expect(res.body.error).toBeDefined();
   });
 });
+
+describe('PATCH /expenses/:id', () => {
+  let idToPatch: number;
+
+  beforeEach(async () => {
+    const seed = {
+      name: 'Patch-me',
+      amount: 5,
+      currency: 'USD',
+      category: 'Test',
+      date: new Date().toISOString(),
+    };
+
+    const res = await request(app).post('/expenses').send(seed).expect(201);
+    idToPatch = res.body.id;
+  });
+
+  it('returns 200 and updates the given fields', async () => {
+    const payload = { name: 'Updated!', amount: 99.9 };
+
+    const patchRes = await request(app)
+      .patch(`/expenses/${idToPatch}`)
+      .send(payload)
+      .expect(200);
+
+    expect(patchRes.body).toMatchObject({
+      id: idToPatch,
+      name: 'Updated!',
+      amount: 99.9,
+    });
+
+    const getRes = await request(app).get(`/expenses/${idToPatch}`).expect(200);
+    expect(getRes.body).toMatchObject({
+      id: idToPatch,
+      name: 'Updated!',
+      amount: 99.9,
+    });
+  });
+
+  it('returns 400 for a non-numeric ID', async () => {
+    const res = await request(app)
+      .patch('/expenses/not-a-number')
+      .send({ name: 'x' })
+      .expect(400);
+
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('returns 404 when the expense does not exist', async () => {
+    const nonexistentId = idToPatch + 10_000;
+
+    const res = await request(app)
+      .patch(`/expenses/${nonexistentId}`)
+      .send({ name: 'Ghost' })
+      .expect(404);
+
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('returns 404 when the body has no updatable fields', async () => {
+    const res = await request(app)
+      .patch(`/expenses/${idToPatch}`)
+      .send({})
+      .expect(404);
+
+    expect(res.body.error).toBeDefined();
+  });
+});
+
+describe('DELETE /expenses/:id', () => {
+  let idToDelete: number;
+
+  beforeEach(async () => {
+    const seed = {
+      name: 'Delete-me',
+      amount: 1,
+      currency: 'USD',
+      category: 'Test',
+      date: new Date().toISOString(),
+    };
+
+    const res = await request(app).post('/expenses').send(seed).expect(201);
+    idToDelete = res.body.id;
+  });
+
+  it('returns 204 when deletion is successful', async () => {
+    await request(app).delete(`/expenses/${idToDelete}`).expect(204);
+    await request(app).get(`/expenses/${idToDelete}`).expect(404);
+  });
+
+  it('returns 400 for a non-numeric ID', async () => {
+    const res = await request(app).delete('/expenses/not-a-number').expect(400);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('returns 404 when the expense does not exist', async () => {
+    const nonexistentId = idToDelete + 10_000;
+
+    const res = await request(app).delete(`/expenses/${nonexistentId}`).expect(404);
+    expect(res.body.error).toBeDefined();
+  });
+});

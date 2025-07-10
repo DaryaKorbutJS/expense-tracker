@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { ExpenseQuery } from './types';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDTO } from './dto/createExpense.dto';
+import { UpdateExpenseDTO } from './dto/updateExpense.dto';
 import { validate } from '../helpers/middlewares/validator';
 
 const router = Router();
@@ -78,5 +79,57 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     next(err);
   }
 });
+
+router.patch(
+  '/:id',
+  validate(UpdateExpenseDTO),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid ID' });
+      return;
+    }
+
+    try {
+      const dto = new UpdateExpenseDTO(req.body);
+      const updated = await service.updateExpense(id, dto);
+
+      if (!updated) {
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
+
+      res.status(200).json(updated);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+router.delete(
+  '/:id',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const id = parseInt(req.params.id, 10);
+
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'Invalid ID' });
+      return;
+    }
+
+    try {
+      const removed = await service.deleteExpense(id);
+
+      if (!removed) {
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
+
+      res.status(204).send();
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 export default router;

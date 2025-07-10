@@ -1,4 +1,5 @@
 import prisma from '../prisma/prisma.service'
+import { Prisma } from '@prisma/client';
 import { ExpenseQuery } from './types';
 import { CreateExpenseDTO } from './dto/createExpense.dto'
 import Expense from './entity/expense.entity'
@@ -36,5 +37,36 @@ export class ExpensesRepository {
     return prisma.expense.findUnique({
       where: { id },
     })
+  }
+
+  async updateById(
+    id: number,
+    data: Partial<Expense>,
+  ): Promise<Expense | null> {
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([, v]) => v !== undefined),
+    ) as Partial<Expense>;
+
+    if (Object.keys(cleanData).length === 0) return null;
+
+    try {
+      return await prisma.expense.update({
+        where: { id },
+        data : cleanData,
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        return null;
+      }
+      throw err;
+    }
+  }
+
+  async deleteById(id: number): Promise<boolean> {
+    const { count } = await prisma.expense.deleteMany({ where: { id } });
+    return count > 0;
   }
 }
