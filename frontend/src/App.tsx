@@ -1,7 +1,8 @@
 import { Logo } from './components/Logo/index'
 import { Loader } from './components/Loader/index'
-import { Button } from "./components/Button/index"
+import { Button } from './components/Button/index'
 import { InputLabel } from './components/InputLabel/index'
+import { Input } from './components/Input/index'
 import './App.css'
 
 function handleClick() {
@@ -9,6 +10,8 @@ function handleClick() {
 }
 
 function App() {
+  const name = "";
+
   return (
     <>
       <Logo />
@@ -45,6 +48,16 @@ function App() {
       <InputLabel htmlFor="username">
         Email
       </InputLabel>
+
+      <Input />
+      <Input helperText="Error message" />
+      <Input
+        type="text"
+        placeholder="Enter name"
+        defaultValue={name}
+        error
+        helperText="Error message"
+      />
     </>
   )
 }
