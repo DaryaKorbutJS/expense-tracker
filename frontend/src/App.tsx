@@ -3,6 +3,7 @@ import { Loader } from './components/Loader/index'
 import { Button } from './components/Button/index'
 import { InputLabel } from './components/InputLabel/index'
 import { Input } from './components/Input/index'
+import { Icon } from './components/Icon/index'
 import './App.css'
 
 function handleClick() {
@@ -16,6 +17,10 @@ function App() {
     <>
       <Logo />
       <Loader />
+
+      <Icon iconName="bank" size={32} color="red" />
+      <Icon iconName="bell" ariaLabel="Bell Icon" />
+      <Icon iconName="transport" ariaLabel="Transport Icon" color="blue"/>
 
       <Button buttonType="primary" size="large" onClick={handleClick}>
         Sign in
