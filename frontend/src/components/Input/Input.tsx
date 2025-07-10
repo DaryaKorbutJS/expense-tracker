@@ -5,12 +5,12 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = ({
   error = false,
   helperText = '',
   className = '',
   ...rest
-}) => {
+}: InputProps) => {
   return (
     <div className={styles.wrapper}>
       <input
