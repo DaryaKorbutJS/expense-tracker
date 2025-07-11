@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Logo } from './components/Logo/index'
 import { Loader } from './components/Loader/index'
 import { Button } from './components/Button/index'
 import { InputLabel } from './components/InputLabel/index'
 import { Input } from './components/Input/index'
 import { Icon } from './components/Icon/index'
+import { CustomDatePicker } from './components/DatePicker/index'
 import './App.css'
 
 function handleClick() {
@@ -12,11 +14,23 @@ function handleClick() {
 
 function App() {
   const name = "";
+  const [selectedDate, setSelectedDate] = useState('2023-08-18');
+
+  const handleDateChange = (newDate: string) => {
+    setSelectedDate(newDate);
+  };
 
   return (
     <>
       <Logo />
       <Loader />
+
+      <CustomDatePicker
+        value={selectedDate}
+        onChange={handleDateChange}
+      />
+
+      <p>Selected date: {selectedDate}</p>
 
       <Icon iconName="bank" size={32} color="red" />
       <Icon iconName="bell" ariaLabel="Bell Icon" />
